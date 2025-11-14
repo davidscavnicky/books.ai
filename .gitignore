@@ -1,0 +1,124 @@
+# ----------------------
+# Python build / cache
+# ----------------------
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# .pyenv file
+.python-version
+
+# ipython extras
+.ipynb_checkpoints/
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Installer / pip logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+.pytest_cache/*
+nosetests.xml
+coverage.xml
+*,cover
+.hypothesis
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+
+# IPython / Jupyter
+.ipynb_checkpoints/
+
+# Sphinx documentation build
+docs/_build/
+docs/_notebooks/
+docs/api/generated/
+docs/_auto
+
+# PyBuilder
+target/
+
+# Editor/project files
+.idea/
+.vscode/
+
+# mypy cache
+.mypy_cache/
+
+# Generated data
+*.csv
+*.data
+*.dat
+*.hdf5
+*.json
+
+# Temporary files
+*.md~
+*.py~
+tmp/
+.#*
+.mypy_cache/*
+
+docs/examples/data/*
+
+.idea/
+.vscode/
+.ionide/
+
+# MacOS
+.DS_Store
+
+# Vscode
+.vscode/
+# Ruff
+.ruff_cache/
+
+# ----------------------
+# PyInstaller
+# ----------------------
+# These are build artifacts created when PyInstaller bundles an app.
+# Often a small Python script will generate these files from a template
+# (for example to inject build dates or metadata) prior to building the
+# executable. They are not source files and should not be committed.
+*.manifest
+*.spec
+
+# ----------------------
+# Project-specific (kept small & relevant)
+# ----------------------
+# keep package metadata and source under version control
+# ignore common local environment file
+.python-version

@@ -1,0 +1,200 @@
+[build-system]
+requires = ["setuptools >= 77.0.0", "versioningit >= 2.2.1"]
+build-backend = 'setuptools.build_meta'
+
+[project]
+name = "booksai"
+maintainers = [
+    { name = "David Scavnicky", email = "dave.scavnicky@gmail.com" },
+]
+description = "for presentation purposes PoC"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering",
+]
+license = { text = "MIT" }
+requires-python = ">=3.11"
+dependencies = ["versioningit>=2.2.1",]
+
+dynamic = ["version"]
+
+[project.readme]
+file = "README.md"
+content-type = "text/markdown"
+
+[project.urls]
+
+
+[project.optional-dependencies]
+test = [
+    "coverage[toml]>=6.3.0",
+    "deepdiff>=5.0.2",
+    "hypothesis>=6.130.0",
+    "mypy>=1.16.0",
+    "pytest>=8.2.0",
+    "pytest-asyncio>=0.24.0",
+    "pytest-cov>=4.1.0",
+    "pytest-mock>=3.12.0",
+    "pytest-rerunfailures>=10.3",
+    "pytest-xdist>=3.1.0",
+    "sphinx>=4.5.0",  # sphinx extension tests
+]
+docs = [
+    "autodocsumm>=0.2.9",
+    "nbsphinx>=0.8.9",
+    "sphinx>=7.3.5",
+    "sphinx-favicon>=1.0",
+    "sphinx-issues>=3.0.1",
+    "sphinx-jsonschema>=1.19.1",
+    "sphinx-rtd-theme>=1.0.0",
+    "ipywidgets>=8.0.0,<9.0.0",
+    "ipykernel>=6.12.0", # implicitly required by ipywidgets >=8.0.5                 
+]
+
+ci = ["booksai[test, docs]"]
+
+
+[project.scripts]
+
+
+[tool.coverage.run]
+source_pkgs = ["booksai"]
+omit = [
+    "src/booksai/__init__.py",
+    "*/__init__.py",
+]
+[tool.coverage.report]
+exclude_lines = ["pragma: no cover", "if TYPE_CHECKING:"]
+
+
+[tool.mypy]
+# Warn about unused or misconfigured settings
+warn_unused_configs = true
+
+# Catch common mistakes
+warn_unused_ignores = true
+warn_redundant_casts = true
+
+# Type-check function bodies even if not fully annotated
+check_untyped_defs = true
+
+# Allow gradual typing
+disallow_untyped_defs = false
+disallow_untyped_calls = false
+disallow_incomplete_defs = false
+
+# Allow use of Any and untyped decorators
+disallow_any_generics = false
+disallow_subclassing_any = false
+disallow_untyped_decorators = false
+
+# Allow implicit re-exports
+no_implicit_reexport = false
+
+# Don't warn about returning Any (yet)
+warn_return_any = false
+
+# Don't enable extra strict checks yet
+extra_checks = false
+
+
+[[tool.mypy.overrides]]
+module = ["booksai.tests.*"]
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+
+# these are packages that we import
+# but either don't have stubs or we
+# dont have them installed.
+[[tool.mypy.overrides]]
+module = [
+    "versioningit",
+]
+ignore_missing_imports = true
+
+[tool.pyright]
+include = ["src","tests"]
+ignore = []
+reportMissingTypeStubs = false
+
+[tool.pytest.ini_options]
+minversion = "7.2"
+testpaths = "tests"
+addopts = "-n auto --dist=loadfile --cov-config=pyproject.toml"
+asyncio_default_fixture_loop_scope = "function"
+markers = "serial"
+
+# warnings triggered by xarray and hdf5netcdf using deprecated apis
+filterwarnings = [
+    "ignore:The distutils package is deprecated and slated for removal in Python 3.12:DeprecationWarning",
+    "ignore:distutils Version classes are deprecated:DeprecationWarning",
+    "ignore:SelectableGroups dict interface is deprecated:DeprecationWarning",
+]
+
+[tool.ruff]
+extend-include = ["*.ipynb"]
+# tests and docs are not packages so it's
+# fine that init is missing and we therefor
+# mark them as namespace packages
+namespace-packages = ["tests", "docs"]
+
+
+[tool.ruff.lint]
+# Enable Pyflakes `E` and `F` codes by default.
+# Style (E, W, I)
+# Logic and safety (F, UP, RUF, PL*)
+# Testing and typing (PT025, TC, PYI)
+# Scientific code quality (NPY)
+# Docstring consistency (D*)
+# Preview rules (RUF027, PYI059)
+
+preview = true
+select = [
+    "E", "F", "PT025", "UP", "RUF", "YTT", "INP",
+    "I", "G", "ISC", "TID253", "NPY", "PLE",
+    "PLR", "PLC", "PLW", "W",
+    "D214", "D300", "D402", "D403", "D405", "D410", "D411", "D412", "D413", "D414", "D416", "D417", "D418", "D419",
+    "TC", "PYI",
+    "RUF027", "PYI059", # these are preview rules that are not yet stable but explicitly enabled.
+    ]
+
+# UP038 this can result in slower code so we ignore it
+# E501, W191, E111, E114, E117, D206, D300, Q000, Q001, Q002, Q003, COM812, COM819, ISC002 is in conflict with ruff fromat
+
+
+ignore = ["E501", "W191", "E111", "E114", "E117", "D206", "D300", "Q000", "Q001", "Q002", "Q003", "COM812", "COM819", "ISC002", "UP038"]
+
+[tool.ruff.lint.per-file-ignores]
+# deprecated modules left
+# for backwards compatibility
+
+[tool.ruff.lint.isort]
+known-first-party = ["booksai"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.setuptools.cmdclass]
+sdist = "versioningit.cmdclass.sdist"
+build_py = "versioningit.cmdclass.build_py"
+
+[tool.versioningit]
+default-version = "0.0.0"
+
+[tool.versioningit.format]
+distance = "{next_version}.dev{distance}+{branch}.{vcs}{rev}"
+dirty = "{next_version}.dev{distance}+{branch}.{vcs}{rev}.dirty"
+distance-dirty = "{next_version}.dev{distance}+{branch}.{vcs}{rev}.dirty"
+
+[tool.versioningit.vcs]
+method = "git"
+match = ["v*"]
+
+[tool.versioningit.onbuild]
+source-file = "src/booksai/_version.py"
+build-file = "booksai/_version.py"

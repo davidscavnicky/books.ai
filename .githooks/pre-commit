@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+LC_ALL=C
+
+local_branch="$(git rev-parse --abbrev-ref HEAD)"
+
+valid_branch_regex="^(main|develop|gh-pages|[A-Za-z0-9._-]+\/[A-Za-z0-9._-]+)$"
+
+message="Invalid branch name: '$local_branch'. Branch names must be one of: 'main', 'develop', 'gh-pages', or follow 'team/branch' (e.g. 'qdc/cool-fx' or 'jdoe/feature-1'). Your commit will be rejected. Please rename your branch and try again."
+
+if [[ ! $local_branch =~ $valid_branch_regex ]]
+then
+    echo "$message"
+    exit 1
+fi
+
+exit 0
