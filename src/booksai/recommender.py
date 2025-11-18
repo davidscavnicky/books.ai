@@ -102,7 +102,11 @@ def item_item_recommender(target_title: str, ratings: pd.DataFrame, books: pd.Da
         if sims[idx] <= 0:
             continue
         isbn = isbn_list[idx]
-        title = books.loc[books['isbn'] == isbn, 'title'].iat[0]
+        title_series = books.loc[books['isbn'] == isbn, 'title']
+        if isinstance(title_series, pd.Series):
+            title = title_series.iloc[0]
+        else:
+            title = title_series
         results.append((title, float(sims[idx])))
     return results
 
@@ -116,7 +120,7 @@ def content_based_recommender(target_title: str, books: pd.DataFrame, top_n: int
     if matches.empty:
         raise ValueError(f"Could not find book matching title: {target_title}")
     target_idx = matches.index[0]
-    sims = cosine_similarity(vec[target_idx], vec).flatten()
+    sims = cosine_similarity(vec.getrow(target_idx), vec).flatten()
     sims[target_idx] = -1
     top_idx = np.argsort(sims)[::-1][:top_n]
     results = []
