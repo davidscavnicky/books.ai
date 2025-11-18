@@ -44,6 +44,9 @@ test = [
     "pytest-xdist>=3.1.0",
     "sphinx>=4.5.0",  # sphinx extension tests
 ]
+web = [
+    "flask>=2.0.0",
+]
 docs = [
     "autodocsumm>=0.2.9",
     "nbsphinx>=0.8.9",
@@ -114,6 +117,17 @@ disallow_incomplete_defs = false
 [[tool.mypy.overrides]]
 module = [
     "versioningit",
+]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = [
+    "pandas",
+    "numpy",
+    "scipy",
+    "sklearn",
+    "sklearn.*",
+    "kagglehub",
 ]
 ignore_missing_imports = true
 
