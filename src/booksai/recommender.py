@@ -16,8 +16,8 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 def load_data(books_path: str = "data/Books.csv", ratings_path: str = "data/Ratings.csv") -> Tuple[pd.DataFrame, pd.DataFrame]:
     if os.path.exists(books_path) and os.path.exists(ratings_path):
-        books = pd.read_csv(books_path, encoding='latin-1')
-        ratings = pd.read_csv(ratings_path, encoding='latin-1')
+        books = pd.read_csv(books_path, encoding='latin-1', low_memory=False)
+        ratings = pd.read_csv(ratings_path, encoding='latin-1', low_memory=False)
     else:
         books = pd.DataFrame([
             {"isbn": "0001", "title": "The Hobbit", "author": "J.R.R. Tolkien"},
@@ -63,6 +63,10 @@ def load_data(books_path: str = "data/Books.csv", ratings_path: str = "data/Rati
 
 
 def popularity_recommender(ratings: pd.DataFrame, top_n: int = 10) -> List[Tuple[str, int]]:
+    """Return top-N most popular books by rating count.
+    
+    Note: Assumes ratings DataFrame already has 'title' column merged from books.
+    """
     counts = ratings.groupby(['isbn', 'title']).size().reset_index(name='count')
     top = counts.sort_values('count', ascending=False).head(top_n)
     return list(top[['title', 'count']].itertuples(index=False, name=None))
@@ -91,7 +95,7 @@ def item_item_recommender(target_title: str, ratings: pd.DataFrame, books: pd.Da
         raise ValueError(f"Could not find book matching title: {target_title}")
     target_isbn = match.iloc[0]['isbn']
     if target_isbn not in isbn_to_index:
-        raise ValueError("Target ISBN not present in ratings data")
+        raise ValueError(f"Book '{target_title}' not found in ratings data (may have insufficient ratings)")
     target_idx = isbn_to_index[target_isbn]
     target_vec = mat.getrow(target_idx)
     sims = cosine_similarity(target_vec, mat).flatten()
@@ -103,11 +107,9 @@ def item_item_recommender(target_title: str, ratings: pd.DataFrame, books: pd.Da
             continue
         isbn = isbn_list[idx]
         title_series = books.loc[books['isbn'] == isbn, 'title']
-        if isinstance(title_series, pd.Series):
+        if isinstance(title_series, pd.Series) and not title_series.empty:
             title = title_series.iloc[0]
-        else:
-            title = title_series
-        results.append((title, float(sims[idx])))
+            results.append((title, float(sims[idx])))
     return results
 
 
