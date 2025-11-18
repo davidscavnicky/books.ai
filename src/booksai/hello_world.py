@@ -12,7 +12,12 @@ from typing import Any
 
 
 def greeter(name: str) -> str:
-	return f"Hello {name}"
+	return f"Hello, {name}!"
+
+
+def hello_world() -> None:
+	"""Print a friendly hello world message."""
+	print("Hello, world!")
 
 
 def myadd(a: int, b: int) -> int:
