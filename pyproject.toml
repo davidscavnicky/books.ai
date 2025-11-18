@@ -44,6 +44,15 @@ test = [
     "pytest-xdist>=3.1.0",
     "sphinx>=4.5.0",  # sphinx extension tests
 ]
+web = [
+    "flask>=2.0.0",
+]
+recommender = [
+    "pandas>=2.0.0",
+    "numpy>=1.24.0",
+    "scipy>=1.10.0",
+    "scikit-learn>=1.3.0",
+]
 docs = [
     "autodocsumm>=0.2.9",
     "nbsphinx>=0.8.9",
@@ -56,7 +65,7 @@ docs = [
     "ipykernel>=6.12.0", # implicitly required by ipywidgets >=8.0.5                 
 ]
 
-ci = ["booksai[test, docs]"]
+ci = ["booksai[test, docs, recommender]"]
 
 
 [project.scripts]
@@ -114,6 +123,17 @@ disallow_incomplete_defs = false
 [[tool.mypy.overrides]]
 module = [
     "versioningit",
+]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = [
+    "pandas",
+    "numpy",
+    "scipy",
+    "sklearn",
+    "sklearn.*",
+    "kagglehub",
 ]
 ignore_missing_imports = true
 

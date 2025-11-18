@@ -2,86 +2,85 @@ name: build docs
 
 on:
   push:
-    branches:
-      - 'main'
-    tags:
-      - 'v*'
+    branches: [ main ]
+    tags: [ 'v*' ]
   pull_request:
-  merge_group:
-    branches: ['main']
 
 jobs:
   builddocs:
-
-    runs-on: { matrix.os }
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
-        python-version: ["3.12"]
+        python-version: ['3.12']
     env:
-      OS: { matrix.os }
-      UPLOAD_TO_GHPAGES: { matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12' && github.event_name == 'push' && github.ref == 'refs/heads/main' }
+      OS: ${{ matrix.os }}
+      UPLOAD_TO_GHPAGES: ${{ matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12' && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
       SPHINX_WARNINGS_AS_ERROR: true
       SPHINX_OPTS: "-v"
+
     steps:
-    - uses: actions/checkout@v4
-      with:
-        # we need full history with tags for the version number
-        fetch-depth: '0'
-    - name: set-sphinx-opts
-      run: |
-        echo "SPHINX_OPTS=-W -v" >> $GITHUB_ENV
-    - name: install pandoc linux
-    # || true logic to not throw error in case the index cannot be fetched.
-    # known to have happened before e.g.
-    # https://github.com/microsoft/linux-package-repositories/issues/130
-      run: |
-        sudo apt update || true
-        sudo apt install pandoc
-      if: runner.os == 'Linux'
-    - name: Install pandoc on windows
-      uses: Wandalen/wretry.action@v1.3.0
-      with:
-        action: crazy-max/ghaction-chocolatey@v1.6.0
-        with: |
-          args: install pandoc
-        attempt_limit: 5
-        attempt_delay: 1000
-      if: runner.os == 'Windows'
-    - name: Set up Python { matrix.python-version }
-      uses: actions/setup-python@v5
-      with:
-        python-version: { matrix.python-version }
-        cache: 'pip'
-        cache-dependency-path: |
-          pyproject.toml
-          requirements.txt
-    - name: Install dependencies and package
-      uses: ./.github/actions/install-dependencies-and-booksai
-    - name: Build docs on linux
-      run: |
-        cd docs
-        export SPHINXOPTS="{ env.SPHINX_OPTS }"
-        make html
-      if: runner.os == 'Linux'
-    - name: Build docs on windows
-      run: |
-        cd docs
-        $env:SPHINXOPTS = "{ env.SPHINX_OPTS }"
-        ./make.bat html
-      if: runner.os == 'Windows'
-    - name: Upload build docs
-      uses: actions/upload-artifact@v4
-      with:
-        name: docs_{ matrix.python-version }_{ matrix.os }
-        path: { github.workspace }/docs/_build/html
-    - name: Deploy to gh pages
-      uses: JamesIves/github-pages-deploy-action@v4.4.3
-      with:
-        branch: gh-pages
-        folder: { github.workspace }/docs/_build/html
-        clean: true
-        single-commit: true
-        git-config-email: "bot"
-        git-config-name: "Documentation Bot"
-      if: { fromJSON(env.UPLOAD_TO_GHPAGES) }
+      - uses: actions/checkout@v4
+        with:
+          # we need full history with tags for the version number
+          fetch-depth: 0
+
+      - name: set-sphinx-opts
+        run: echo "SPHINX_OPTS=-W -v" >> $GITHUB_ENV
+
+      - name: install pandoc linux
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt update || true
+          sudo apt install -y pandoc
+
+      - name: Install pandoc on windows
+        if: runner.os == 'Windows'
+        uses: Wandalen/wretry.action@v1.3.0
+        with:
+          action: crazy-max/ghaction-chocolatey@v1.6.0
+          with: |
+            args: install pandoc
+          attempt_limit: 5
+          attempt_delay: 1000
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: |
+            pyproject.toml
+            requirements.txt
+
+      - name: Install dependencies and package
+        uses: ./.github/actions/install-dependencies-and-booksai
+
+      - name: Build docs on linux
+        if: runner.os == 'Linux'
+        run: |
+          cd docs
+          make html
+
+      - name: Build docs on windows
+        if: runner.os == 'Windows'
+        run: |
+          cd docs
+          ./make.bat html
+
+      - name: Upload build docs
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs_${{ matrix.python-version }}_${{ matrix.os }}
+          path: ${{ github.workspace }}/docs/_build/html
+
+      - name: Deploy to gh pages
+        if: ${{ fromJSON(env.UPLOAD_TO_GHPAGES) }}
+        uses: JamesIves/github-pages-deploy-action@v4.4.3
+        with:
+          branch: gh-pages
+          folder: ${{ github.workspace }}/docs/_build/html
+          clean: true
+          single-commit: true
+          git-config-email: "bot"
+          git-config-name: "Documentation Bot"
