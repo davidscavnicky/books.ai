@@ -11,7 +11,7 @@ Notes:
 from __future__ import annotations
 
 import os
-from typing import List
+from typing import List, Union
 from flask import Flask, request, jsonify
 
 from booksai import recommender
@@ -25,7 +25,7 @@ RATINGS_PATH = os.environ.get("RATINGS_CSV", "data/Ratings.csv")
 books_df, ratings_df = recommender.load_data(BOOKS_PATH, RATINGS_PATH)
 
 
-def _format_results(results: List[tuple]):
+def _format_results(results: List[tuple]) -> List[dict]:
     return [{"title": t, "score": float(s)} for t, s in results]
 
 
@@ -48,9 +48,9 @@ def recommend():
             return jsonify({"method": "item", "query": title, "results": _format_results(res)})
 
         elif method == "pop":
-            res = recommender.popularity_recommender(ratings_df, top_n=top_n)
+            pop_res = recommender.popularity_recommender(ratings_df, top_n=top_n)
             # popularity returns (title, count)
-            return jsonify({"method": "pop", "results": [{"title": t, "count": int(c)} for t, c in res]})
+            return jsonify({"method": "pop", "results": [{"title": t, "count": int(c)} for t, c in pop_res]})
 
         else:
             return jsonify({"error": f"unknown method '{method}'"}), 400

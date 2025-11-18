@@ -1,15 +1,18 @@
 def _get_version() -> str:
     # we use lazy imports to avoid importing modules that are not
     # used when the use of this function is patched out at build time
+    from typing import Any
+    
+    files: Any = None
     try:
         # prefer stdlib import (Python 3.9+)
-        from importlib.resources import files  # type: ignore
+        from importlib.resources import files
     except Exception:
         # fall back to the backport package if present
         try:
-            from importlib_resources import files  # type: ignore
+            from importlib_resources import files  # type: ignore[import-not-found,no-redef]
         except Exception:
-            files = None  # type: ignore
+            pass
 
     from pathlib import Path  # noqa: PLC0415
 

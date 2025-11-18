@@ -26,7 +26,7 @@ def myadd(a: int, b: int) -> int:
 
 def download_dataset(dataset: str = "arashnic/book-recommendation-dataset") -> Any:
 	try:
-		import kagglehub  # type: ignore
+		import kagglehub
 	except Exception as exc:  # pragma: no cover - env-dependent
 		raise ImportError(
 			"kagglehub is not installed in this environment; install it to use download_dataset"

@@ -206,10 +206,9 @@ def item_based_recs_by_title(seed_title: str, books: pd.DataFrame, item_matrix, 
         if i == idx:
             continue
         rec_isbn = item_matrix.index[i]
-        rec_title = books.loc[books['isbn'] == rec_isbn, 'title'].to_numpy()
-        # use .size to safely check NumPy array length (avoids typing issues with datetime-like dtypes)
-        if getattr(rec_title, "size", 0) > 0:
-            recs.append((rec_title[0], float(sims[i])))
+        title_series = books.loc[books['isbn'] == rec_isbn, 'title']
+        if not title_series.empty:  # type: ignore[union-attr]
+            recs.append((str(title_series.iloc[0]), float(sims[i])))  # type: ignore[union-attr]
         if len(recs) >= topn:
             break
     return recs
