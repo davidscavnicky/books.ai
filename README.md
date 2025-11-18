@@ -1,5 +1,6 @@
 # booksai
 V0.0.0 - smoke test
+V0.0.1 - tfidf vectorizer
 
 
 ## Installation
@@ -70,3 +71,4 @@ either or:
 Change these settings under Settings-Action-General.
 Workflow Permissions: Read and Write
 Allow GitHub Actions to approve pull requests
+
