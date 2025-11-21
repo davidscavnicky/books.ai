@@ -9,8 +9,14 @@ from booksai import recommender, evaluation
 
 def popularity_recommender_for_user(user_id, train_ratings, books, top_n=10):
     """Wrapper for popularity recommender (ignores user_id)."""
-    popular = recommender.popularity_recommender(train_ratings, top_n=top_n)
-    return [(row['isbn'], row['rating_count']) for _, row in popular.iterrows()]
+    popular = recommender.popularity_recommender(train_ratings, top_n=top_n)  # List[Tuple[str, int]]
+    results = []
+    for title, count in popular:
+        # Find all ISBNs for this title in the books DataFrame
+        matches = books[books['title'] == title]
+        for _, book_row in matches.iterrows():
+            results.append((book_row['isbn'], count))
+    return results
 
 
 def content_recommender_for_user(user_id, train_ratings, books, top_n=10):
