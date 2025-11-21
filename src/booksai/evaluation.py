@@ -126,7 +126,7 @@ def mean_average_precision(
         if hits > 0:
             aps.append(sum_precisions / min(len(relevant), k))
     
-    return np.mean(aps) if aps else 0.0
+    return float(np.mean(aps)) if aps else 0.0
 
 
 def evaluate_recommender(
@@ -185,8 +185,8 @@ def evaluate_recommender(
             continue
     
     return {
-        'precision@k': np.mean(precisions) if precisions else 0.0,
-        'recall@k': np.mean(recalls) if recalls else 0.0,
+        'precision@k': float(np.mean(precisions)) if precisions else 0.0,
+        'recall@k': float(np.mean(recalls)) if recalls else 0.0,
         'map@k': mean_average_precision(recommended_all, relevant_all, k),
         'n_users_evaluated': len(precisions)
     }
@@ -223,7 +223,7 @@ def cross_validate_recommender(
     
     kf = KFold(n_splits=n_splits, shuffle=True, random_state=random_state)
     
-    results = {
+    results: Dict[str, List[float]] = {
         'precision@k': [],
         'recall@k': [],
         'map@k': []
