@@ -22,8 +22,8 @@ def load_data(books_path: str = "data/Books.csv", ratings_path: str = "data/Rati
         ratings = pd.read_csv(ratings_path, encoding='latin-1', low_memory=False)
     else:
         # Fallback to demo dataset
-        demo_books = "data/demo data/demo_books.csv"
-        demo_ratings = "data/demo data/demo_ratings.csv"
+        demo_books = "data/demo_data/demo_books.csv"
+        demo_ratings = "data/demo_data/demo_ratings.csv"
         if os.path.exists(demo_books) and os.path.exists(demo_ratings):
             print(f"Using demo dataset from {demo_books} and {demo_ratings}")
             books = pd.read_csv(demo_books)
