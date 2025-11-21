@@ -1,6 +1,6 @@
 #!/bin/bash
 # Test script for the recommender API
-# Run the Flask API first: python scripts/recommender_api.py
+# Run the Flask API first: python scripts/api.py
 
 API_URL="http://localhost:5000"
 
