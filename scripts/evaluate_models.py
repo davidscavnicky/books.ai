@@ -29,7 +29,9 @@ def content_recommender_for_user(user_id, train_ratings, books, top_n=10):
     # Get content-based recommendations
     try:
         recs = recommender.content_based_recommender(title, books, top_n=top_n)
-        return [(row['isbn'], row['similarity_score']) for _, row in recs.iterrows()]
+        # recs is a list of (title, score) tuples
+        # Map titles back to ISBNs
+        return [(books[books['title'] == t]['isbn'].iloc[0], score) for t, score in recs if not books[books['title'] == t].empty]
     except Exception:
         return []
 
