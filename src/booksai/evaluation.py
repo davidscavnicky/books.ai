@@ -3,7 +3,6 @@ import numpy as np
 import pandas as pd
 from typing import Dict, List, Tuple
 from sklearn.model_selection import KFold
-from scipy.sparse import csr_matrix
 
 
 def train_test_split_by_user(
