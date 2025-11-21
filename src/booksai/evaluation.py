@@ -40,8 +40,8 @@ def train_test_split_by_user(
         test_list.append(shuffled.iloc[:n_test])
         train_list.append(shuffled.iloc[n_test:])
     
-    train_df = pd.concat(train_list, ignore_index=True)
-    test_df = pd.concat(test_list, ignore_index=True)
+    train_df = pd.concat(train_list, ignore_index=True) if train_list else pd.DataFrame()
+    test_df = pd.concat(test_list, ignore_index=True) if test_list else pd.DataFrame()
     
     return train_df, test_df
 
