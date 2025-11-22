@@ -24,16 +24,18 @@ This project demonstrates different recommendation algorithms using the [Kaggle 
 booksai/
 ├── src/booksai/
 │   ├── recommender.py          # Core recommendation algorithms
-│   └── _version.py             # Version management
+│   └── evaluation.py           # Cross-validation framework
 ├── scripts/
-│   ├── train_recommender.py    # Training script (loads data, trains models, saves artifacts)
-│   ├── api.py                  # Flask REST API for serving recommendations
-│   └── recommend_example.py    # Simple CLI demo
+│   ├── train_recommender.py    # Training (saves content_tfidf.pkl, item_similarity.pkl)
+│   ├── api.py                  # Flask REST API (loads pre-computed matrices)
+│   └── evaluate_models.py      # Run cross-validation evaluation
 ├── tests/
-│   └── recommender_test.py     # Unit tests for recommender functions
-├── data/                        # Place Books.csv and Ratings.csv here (gitignored)
-├── models/                      # Saved model artifacts (tfidf_vectorizer.pkl, books_df.pkl)
-└── docs/                        # Sphinx documentation
+│   ├── recommender_test.py     # Unit tests
+│   ├── test_api.sh             # API test script (7 calls)
+│   └── test_api_extended.sh    # Extended API tests (23 calls)
+├── data/                        # Books.csv, Ratings.csv (gitignored)
+├── models/                      # content_tfidf.pkl, item_similarity.pkl, books_df.pkl
+└── docs/                        # Architecture diagrams, performance docs
 ```
 
 ## Quick Start
@@ -58,7 +60,7 @@ PYTHONPATH=src python scripts/train_recommender.py
 PORT=5001 PYTHONPATH=src python scripts/api.py &
 
 # 3. Test API endpoints
-./scripts/test_api_calls.sh
+./tests/test_api.sh
 ```
 
 **Output:**

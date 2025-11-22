@@ -86,6 +86,12 @@ data/Ratings.csv
 *.hdf5
 *.json
 
+# Model artifacts - ignore pre-computed matrices (large files)
+models/*.pkl
+models/*.h5
+models/*.pt
+models/*.pth
+
 # Temporary files
 *.md~
 *.py~
