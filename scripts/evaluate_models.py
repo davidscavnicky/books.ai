@@ -143,7 +143,7 @@ def main():
         
         for name, recommender_func in algorithms:
             print(f"\n{name}:")
-            cv_results = evaluation.cross_validate_recommender(
+            evaluation.cross_validate_recommender(
                 recommender_func,
                 sample_ratings,
                 books,
