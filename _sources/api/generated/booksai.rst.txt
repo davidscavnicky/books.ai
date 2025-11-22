@@ -1,0 +1,29 @@
+booksai package
+===============
+
+Submodules
+----------
+
+booksai.evaluation module
+-------------------------
+
+.. automodule:: booksai.evaluation
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+booksai.recommender module
+--------------------------
+
+.. automodule:: booksai.recommender
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: booksai
+   :members:
+   :undoc-members:
+   :show-inheritance:

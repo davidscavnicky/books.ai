@@ -1,0 +1,382 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>booksai.evaluation &mdash; booksai 0.1.0.dev29 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=130530c3"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script src="../../_static/js/custom-header.js?v=dbdd3682"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            booksai
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html">booksai API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../example_notebooks/index.html">Examples of using booksai</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changes/index.html">Changelogs</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">booksai</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">booksai.evaluation</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for booksai.evaluation</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Cross-validation and evaluation metrics for recommendation systems.&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">KFold</span>
+
+
+<div class="viewcode-block" id="train_test_split_by_user">
+<a class="viewcode-back" href="../../api/generated/booksai.html#booksai.evaluation.train_test_split_by_user">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">train_test_split_by_user</span><span class="p">(</span>
+    <span class="n">ratings</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">test_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
+    <span class="n">random_state</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">42</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Split ratings into train/test sets, keeping some ratings per user in test.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        ratings: DataFrame with columns [&#39;user_id&#39;, &#39;isbn&#39;, &#39;rating&#39;]</span>
+<span class="sd">        test_size: Fraction of ratings per user to hold out for testing</span>
+<span class="sd">        random_state: Random seed for reproducibility</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        train_df, test_df</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">random_state</span><span class="p">)</span>
+    
+    <span class="n">train_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">test_list</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="k">for</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">user_ratings</span> <span class="ow">in</span> <span class="n">ratings</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;user_id&#39;</span><span class="p">):</span>
+        <span class="n">n_ratings</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">user_ratings</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">n_ratings</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="c1"># Keep users with only 1 rating in training</span>
+            <span class="n">train_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">user_ratings</span><span class="p">)</span>
+            <span class="k">continue</span>
+            
+        <span class="c1"># Shuffle and split</span>
+        <span class="n">shuffled</span> <span class="o">=</span> <span class="n">user_ratings</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">frac</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span><span class="p">)</span>
+        <span class="n">n_test</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_ratings</span> <span class="o">*</span> <span class="n">test_size</span><span class="p">))</span>
+        
+        <span class="n">test_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">shuffled</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="n">n_test</span><span class="p">])</span>
+        <span class="n">train_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">shuffled</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">n_test</span><span class="p">:])</span>
+    
+    <span class="n">train_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">train_list</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">if</span> <span class="n">train_list</span> <span class="k">else</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+    <span class="n">test_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">test_list</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">if</span> <span class="n">test_list</span> <span class="k">else</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+    
+    <span class="k">return</span> <span class="n">train_df</span><span class="p">,</span> <span class="n">test_df</span></div>
+
+
+
+<div class="viewcode-block" id="precision_at_k">
+<a class="viewcode-back" href="../../api/generated/booksai.html#booksai.evaluation.precision_at_k">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">precision_at_k</span><span class="p">(</span><span class="n">recommended</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">relevant</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate Precision@K: fraction of recommended items that are relevant.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        recommended: List of recommended ISBNs (ordered by score)</span>
+<span class="sd">        relevant: List of ISBNs the user actually liked in test set</span>
+<span class="sd">        k: Number of top recommendations to consider</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Precision@K score</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">recommended</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.0</span>
+    
+    <span class="n">recommended_k</span> <span class="o">=</span> <span class="n">recommended</span><span class="p">[:</span><span class="n">k</span><span class="p">]</span>
+    <span class="n">relevant_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">relevant</span><span class="p">)</span>
+    <span class="n">hits</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">isbn</span> <span class="ow">in</span> <span class="n">recommended_k</span> <span class="k">if</span> <span class="n">isbn</span> <span class="ow">in</span> <span class="n">relevant_set</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">hits</span> <span class="o">/</span> <span class="n">k</span></div>
+
+
+
+<div class="viewcode-block" id="recall_at_k">
+<a class="viewcode-back" href="../../api/generated/booksai.html#booksai.evaluation.recall_at_k">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">recall_at_k</span><span class="p">(</span><span class="n">recommended</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">relevant</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate Recall@K: fraction of relevant items that were recommended.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        recommended: List of recommended ISBNs</span>
+<span class="sd">        relevant: List of ISBNs the user actually liked in test set</span>
+<span class="sd">        k: Number of top recommendations to consider</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Recall@K score</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">relevant</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.0</span>
+    
+    <span class="n">recommended_k</span> <span class="o">=</span> <span class="n">recommended</span><span class="p">[:</span><span class="n">k</span><span class="p">]</span>
+    <span class="n">relevant_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">relevant</span><span class="p">)</span>
+    <span class="n">hits</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">isbn</span> <span class="ow">in</span> <span class="n">recommended_k</span> <span class="k">if</span> <span class="n">isbn</span> <span class="ow">in</span> <span class="n">relevant_set</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">hits</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">relevant</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="mean_average_precision">
+<a class="viewcode-back" href="../../api/generated/booksai.html#booksai.evaluation.mean_average_precision">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">mean_average_precision</span><span class="p">(</span>
+    <span class="n">recommended_lists</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+    <span class="n">relevant_lists</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+    <span class="n">k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate Mean Average Precision (MAP@K).</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        recommended_lists: List of recommendation lists (one per user)</span>
+<span class="sd">        relevant_lists: List of relevant item lists (one per user)</span>
+<span class="sd">        k: Number of recommendations to consider</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        MAP@K score</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">recommended_lists</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">relevant_lists</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Recommended and relevant lists must have same length&quot;</span><span class="p">)</span>
+    
+    <span class="n">aps</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">recommended</span><span class="p">,</span> <span class="n">relevant</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">recommended_lists</span><span class="p">,</span> <span class="n">relevant_lists</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">relevant</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">continue</span>
+            
+        <span class="n">relevant_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">relevant</span><span class="p">)</span>
+        <span class="n">hits</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">sum_precisions</span> <span class="o">=</span> <span class="mf">0.0</span>
+        
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">isbn</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">recommended</span><span class="p">[:</span><span class="n">k</span><span class="p">],</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">isbn</span> <span class="ow">in</span> <span class="n">relevant_set</span><span class="p">:</span>
+                <span class="n">hits</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">sum_precisions</span> <span class="o">+=</span> <span class="n">hits</span> <span class="o">/</span> <span class="n">i</span>
+        
+        <span class="k">if</span> <span class="n">hits</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">aps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sum_precisions</span> <span class="o">/</span> <span class="nb">min</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">relevant</span><span class="p">),</span> <span class="n">k</span><span class="p">))</span>
+    
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">aps</span><span class="p">))</span> <span class="k">if</span> <span class="n">aps</span> <span class="k">else</span> <span class="mf">0.0</span></div>
+
+
+
+<div class="viewcode-block" id="evaluate_recommender">
+<a class="viewcode-back" href="../../api/generated/booksai.html#booksai.evaluation.evaluate_recommender">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">evaluate_recommender</span><span class="p">(</span>
+    <span class="n">recommender_func</span><span class="p">,</span>
+    <span class="n">train_ratings</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">test_ratings</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">books</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="n">rating_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">7.0</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Evaluate a recommender on test set.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        recommender_func: Function that takes (user_id, train_ratings, books, k) </span>
+<span class="sd">                          and returns list of (isbn, score) tuples</span>
+<span class="sd">        train_ratings: Training ratings</span>
+<span class="sd">        test_ratings: Test ratings</span>
+<span class="sd">        books: Books DataFrame</span>
+<span class="sd">        k: Number of recommendations</span>
+<span class="sd">        rating_threshold: Minimum rating to consider as &quot;relevant&quot;</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Dictionary with precision@k, recall@k, map@k</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">precisions</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">recalls</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">recommended_all</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">relevant_all</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="c1"># Get users who appear in both train and test</span>
+    <span class="n">test_users</span> <span class="o">=</span> <span class="n">test_ratings</span><span class="p">[</span><span class="s1">&#39;user_id&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+    <span class="n">train_users</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">train_ratings</span><span class="p">[</span><span class="s1">&#39;user_id&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
+    <span class="n">common_users</span> <span class="o">=</span> <span class="p">[</span><span class="n">u</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">test_users</span> <span class="k">if</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">train_users</span><span class="p">]</span>
+    
+    <span class="k">for</span> <span class="n">user_id</span> <span class="ow">in</span> <span class="n">common_users</span><span class="p">[:</span><span class="mi">100</span><span class="p">]:</span>  <span class="c1"># Limit to 100 users for speed</span>
+        <span class="c1"># Get user&#39;s test items (ground truth)</span>
+        <span class="n">user_test</span> <span class="o">=</span> <span class="n">test_ratings</span><span class="p">[</span><span class="n">test_ratings</span><span class="p">[</span><span class="s1">&#39;user_id&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">user_id</span><span class="p">]</span>
+        <span class="n">relevant</span> <span class="o">=</span> <span class="n">user_test</span><span class="p">[</span><span class="n">user_test</span><span class="p">[</span><span class="s1">&#39;rating&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">rating_threshold</span><span class="p">][</span><span class="s1">&#39;isbn&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">relevant</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">continue</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Get recommendations</span>
+            <span class="n">recs</span> <span class="o">=</span> <span class="n">recommender_func</span><span class="p">(</span><span class="n">user_id</span><span class="p">,</span> <span class="n">train_ratings</span><span class="p">,</span> <span class="n">books</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+            <span class="n">recommended</span> <span class="o">=</span> <span class="p">[</span><span class="n">isbn</span> <span class="k">for</span> <span class="n">isbn</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">recs</span><span class="p">]</span>
+            
+            <span class="c1"># Calculate metrics</span>
+            <span class="n">precisions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">precision_at_k</span><span class="p">(</span><span class="n">recommended</span><span class="p">,</span> <span class="n">relevant</span><span class="p">,</span> <span class="n">k</span><span class="p">))</span>
+            <span class="n">recalls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">recall_at_k</span><span class="p">(</span><span class="n">recommended</span><span class="p">,</span> <span class="n">relevant</span><span class="p">,</span> <span class="n">k</span><span class="p">))</span>
+            <span class="n">recommended_all</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">recommended</span><span class="p">)</span>
+            <span class="n">relevant_all</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">relevant</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="c1"># Skip users where recommender fails</span>
+            <span class="k">continue</span>
+    
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s1">&#39;precision@k&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">precisions</span><span class="p">))</span> <span class="k">if</span> <span class="n">precisions</span> <span class="k">else</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="s1">&#39;recall@k&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">recalls</span><span class="p">))</span> <span class="k">if</span> <span class="n">recalls</span> <span class="k">else</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="s1">&#39;map@k&#39;</span><span class="p">:</span> <span class="n">mean_average_precision</span><span class="p">(</span><span class="n">recommended_all</span><span class="p">,</span> <span class="n">relevant_all</span><span class="p">,</span> <span class="n">k</span><span class="p">),</span>
+        <span class="s1">&#39;n_users_evaluated&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">precisions</span><span class="p">)</span>
+    <span class="p">}</span></div>
+
+
+
+<div class="viewcode-block" id="cross_validate_recommender">
+<a class="viewcode-back" href="../../api/generated/booksai.html#booksai.evaluation.cross_validate_recommender">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">cross_validate_recommender</span><span class="p">(</span>
+    <span class="n">recommender_func</span><span class="p">,</span>
+    <span class="n">ratings</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">books</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">n_splits</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="n">k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="n">rating_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">7.0</span><span class="p">,</span>
+    <span class="n">random_state</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">42</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform k-fold cross-validation on a recommender.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        recommender_func: Recommender function to evaluate</span>
+<span class="sd">        ratings: Full ratings DataFrame</span>
+<span class="sd">        books: Books DataFrame</span>
+<span class="sd">        n_splits: Number of CV folds</span>
+<span class="sd">        k: Number of recommendations</span>
+<span class="sd">        rating_threshold: Minimum rating to consider as relevant</span>
+<span class="sd">        random_state: Random seed</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Dictionary with lists of scores for each fold</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Filter to users with enough ratings</span>
+    <span class="n">user_counts</span> <span class="o">=</span> <span class="n">ratings</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;user_id&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">size</span><span class="p">()</span>
+    <span class="n">valid_users</span> <span class="o">=</span> <span class="n">user_counts</span><span class="p">[</span><span class="n">user_counts</span> <span class="o">&gt;=</span> <span class="n">n_splits</span><span class="p">]</span><span class="o">.</span><span class="n">index</span>
+    <span class="n">ratings_filtered</span> <span class="o">=</span> <span class="n">ratings</span><span class="p">[</span><span class="n">ratings</span><span class="p">[</span><span class="s1">&#39;user_id&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">valid_users</span><span class="p">)]</span>
+    
+    <span class="n">kf</span> <span class="o">=</span> <span class="n">KFold</span><span class="p">(</span><span class="n">n_splits</span><span class="o">=</span><span class="n">n_splits</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span><span class="p">)</span>
+    
+    <span class="n">results</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;precision@k&#39;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s1">&#39;recall@k&#39;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s1">&#39;map@k&#39;</span><span class="p">:</span> <span class="p">[]</span>
+    <span class="p">}</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Running </span><span class="si">{</span><span class="n">n_splits</span><span class="si">}</span><span class="s2">-fold cross-validation...&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">fold</span><span class="p">,</span> <span class="p">(</span><span class="n">train_idx</span><span class="p">,</span> <span class="n">test_idx</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">kf</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">ratings_filtered</span><span class="p">),</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Fold </span><span class="si">{</span><span class="n">fold</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">n_splits</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+        
+        <span class="n">train_df</span> <span class="o">=</span> <span class="n">ratings_filtered</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">train_idx</span><span class="p">]</span>
+        <span class="n">test_df</span> <span class="o">=</span> <span class="n">ratings_filtered</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">test_idx</span><span class="p">]</span>
+        
+        <span class="n">metrics</span> <span class="o">=</span> <span class="n">evaluate_recommender</span><span class="p">(</span>
+            <span class="n">recommender_func</span><span class="p">,</span>
+            <span class="n">train_df</span><span class="p">,</span>
+            <span class="n">test_df</span><span class="p">,</span>
+            <span class="n">books</span><span class="p">,</span>
+            <span class="n">k</span><span class="p">,</span>
+            <span class="n">rating_threshold</span>
+        <span class="p">)</span>
+        
+        <span class="n">results</span><span class="p">[</span><span class="s1">&#39;precision@k&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;precision@k&#39;</span><span class="p">])</span>
+        <span class="n">results</span><span class="p">[</span><span class="s1">&#39;recall@k&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;recall@k&#39;</span><span class="p">])</span>
+        <span class="n">results</span><span class="p">[</span><span class="s1">&#39;map@k&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;map@k&#39;</span><span class="p">])</span>
+        
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;P@</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;precision@k&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, R@</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;recall@k&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, MAP@</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;map@k&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Print summary</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Cross-validation results (mean ± std):&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">metric</span><span class="p">,</span> <span class="n">values</span> <span class="ow">in</span> <span class="n">results</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">metric</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">values</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> ± </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">values</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">results</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

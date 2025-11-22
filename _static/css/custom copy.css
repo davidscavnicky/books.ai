@@ -1,0 +1,290 @@
+
+/* ========================================================================== */
+/* SECTION 1: BRANDING & FONTS */
+/* (Google Fonts, FontAwesome, Brand colors) */
+/* ========================================================================== */
+
+/* Override font declarations from theme.css - Self-hosted Montserrat font */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
+
+/* Force Montserrat with safe fallbacks */
+html body *,
+html body,
+.rst-content *,
+.rst-content,
+.wy-nav-content-wrap *,
+.wy-nav-content-wrap {
+  font-family: 'Montserrat', Helvetica, Arial, sans-serif !important;
+}
+
+
+/* Specific heading overrides */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Montserrat', Helvetica, Arial, sans-serif !important;
+  font-weight: 600 !important;
+}
+
+/* FIX ALL FONTAWESOME 404 ERRORS - Override theme's FontAwesome with CDN version */
+/* NUCLEAR OPTION - Completely override and suppress all theme font loading */
+@font-face {
+    font-family: 'FontAwesome';
+    src: local('Arial'), url('data:application/font-woff2;charset=utf-8;base64,') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* Loads the real CDN version */
+@font-face {
+    font-family: 'FontAwesome';
+    src: url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/fonts/fontawesome-webfont.woff2?v=4.7.0') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* Ensure FontAwesome icons work properly */
+.fa, .icon, [class^="fa-"], [class*=" fa-"], [class^="icon-"], [class*=" icon-"] {
+    font-family: 'FontAwesome' !important;
+    font-style: normal !important;
+    font-weight: normal !important;
+    line-height: 1 !important;
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
+}
+
+/* Brand Colors and Gradients */
+/* Sidebar Navigation Search Section */
+.wy-side-nav-search {
+  background: linear-gradient(to bottom, #3929b7, #c73028) !important;
+  padding: 20px !important;
+  text-align: center !important;
+}
+
+/* Home Icon Link in Sidebar */
+.wy-side-nav-search .icon.icon-home {
+  color: #ffffff !important;
+  font-weight: bold !important;
+  font-size: 24px !important;
+  text-decoration: none !important;
+}
+
+/* Fix potential contrast issues */
+.wy-nav-side {
+    background: #343131 !important;
+    color: #d9d9d9 !important;
+}
+
+/* ========================================================================== */
+/* SECTION 2: LAYOUT & NAVIGATION */
+/* (Sidebar, navigation centering, responsive) */
+/* ========================================================================== */
+
+/* Logo Section */
+.logo-section {
+  text-align: center;
+  margin-top: 1px;
+}
+
+.logo-section img {
+  max-width: 250px;
+  height: auto;
+}
+
+/* Navigation Menu Items */
+.toctree-l1 a {
+  display: block;
+  padding: 0.5rem 0;
+}
+
+/* FORCE LEFT ALIGN NAVIGATION - Higher specificity */
+.wy-nav-side .wy-side-scroll .wy-menu.wy-menu-vertical li a {
+    text-align: left !important;
+    padding-left: 30px !important;
+    padding-right: 20px !important;
+}
+
+/* Backup targeting */
+nav[data-toggle="wy-nav-shift"] .wy-menu-vertical li a {
+    text-align: left !important;
+    padding-left: 30px !important;
+}
+
+/* Mobile Navigation Top Bar */
+.wy-nav-top a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Breadcrumb Navigation */
+.wy-breadcrumbs {
+  margin-bottom: 1rem;
+}
+
+/* Footer Navigation Buttons */
+.rst-footer-buttons {
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.btn-neutral {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  color: #495057;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  border-radius: 0.25rem;
+}
+
+.btn-neutral:hover {
+  background-color: #e9ecef;
+  border-color: #adb5bd;
+}
+
+/* Fix search input visibility */
+.wy-side-nav-search input[type="text"] {
+    color: #333 !important;
+    background: #fff !important;
+}
+
+/* Ensure proper spacing for navigation elements */
+.wy-nav-content-wrap {
+  margin-left: 300px;
+}
+
+/* Ensure proper z-index stacking */
+.wy-nav-side {
+    z-index: 200 !important;
+}
+
+.wy-nav-top {
+    z-index: 100 !important;
+}
+
+/* ========================================================================== */
+/* SECTION 3: CONTENT STYLING */
+/* (Typography, tables, code blocks) */
+/* ========================================================================== */
+
+/* Main Content Styling */
+.document {
+  margin-bottom: 2rem;
+}
+
+/* Header Links */
+.headerlink {
+  margin-left: 0.5rem;
+  opacity: 0.6;
+}
+
+.headerlink:hover {
+  opacity: 1;
+}
+
+/* Additional Spacing and Layout */
+.rst-content {
+  padding-bottom: 2rem;
+}
+
+section {
+  margin-bottom: 2rem;
+}
+
+/* Size of text/table space */
+.wy-nav-content {
+    max-width: 850px !important;
+}
+
+/* Fix code blocks */
+.rst-content code, .rst-content tt {
+    background: #fff !important;
+    border: 1px solid #e1e4e5 !important;
+    color: #e74c3c !important;
+}
+
+/* Fix table borders */
+.rst-content table.docutils {
+    border-collapse: collapse !important;
+}
+
+/* Optional Version Badge */
+.rst-versions {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #1f1d1d;
+    color: #fcfcfc;
+    font-family: 'Montserrat', Arial, sans-serif !important;
+    padding: 8px 12px;
+    border-radius: 4px;
+    z-index: 100;
+}
+
+/* ========================================================================== */
+/* SECTION 4: MOBILE OVERRIDES */
+/* (Responsive breakpoints) */
+/* ========================================================================== */
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .logo-section img {
+    max-width: 200px;
+  }
+  
+  .wy-side-nav-search {
+    padding: 15px !important;
+  }
+  
+  .wy-side-nav-search .icon.icon-home {
+    font-size: 20px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .wy-nav-content-wrap {
+    margin-left: 0;
+  }
+}
+
+/* Fix mobile navigation */
+@media screen and (max-width: 768px) {
+    .wy-nav-side {
+        background: #343131 !important;
+    }
+    
+    .wy-nav-content-wrap {
+        margin-left: 0 !important;
+    }
+}
+
+/* Enhanced mobile layout customization */
+@media screen and (max-width: 768px) {
+    /* Keep your gradient background on mobile top bar */
+    .wy-nav-top {
+        background: linear-gradient(to bottom, #3929b7, #c73028) !important;
+        color: #ffffff !important;
+    }
+    
+    /* Ensure sidebar keeps your colors when shown */
+    .wy-nav-side {
+        background: #343131 !important;
+    }
+    
+    /* Mobile content area background */
+    .wy-body-for-nav {
+        background: #fcfcfc !important;
+    }
+    
+    /* Mobile navigation links */
+    .wy-nav-top a {
+        color: #ffffff !important;
+    }
+}
+
+#floating-logo {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    height: 40px;
+    z-index: 1000;
+}
+
