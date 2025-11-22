@@ -50,10 +50,25 @@ python scripts/train_recommender.py
 python scripts/train_recommender.py
 ```
 
+```bash
+# 1. Train models (saves to models/)
+PYTHONPATH=src python scripts/train_recommender.py
+
+# 2. Start API (loads models from models/)
+PORT=5001 PYTHONPATH=src python scripts/api.py &
+
+# 3. Test API endpoints
+./scripts/test_api_calls.sh
+```
+
 **Output:**
 - Prints top popular books
 - Shows content-based recommendations for a sample query
+    - book metadata (title, author)
+
 - Shows item-based collaborative filtering recommendations
+    - "Two books are "co-occurring" when the same user has rated both of them."
+    - Higher similarities 'sim' if users gave similiar ratings, lover 'sim' if users rated them differently
 - Saves trained artifacts to `models/`
 
 ### 2. Using the REST API
@@ -309,26 +324,6 @@ make html
 Could run `make clean` before you run `make html`.
 
 The generated HTML will appear in `docs/_build/html`.
-
-## Development
-
-### Project Setup
-
-```bash
-# Clone and setup
-git clone https://github.com/davidscavnicky/books.ai.git
-cd books.ai
-
-# Create environment
-conda create -n books python=3.12
-conda activate books
-
-# Install with all dev dependencies
-pip install -e .[dev]
-
-# Setup git hooks (if .githooks/ exists)
-git config core.hooksPath .githooks
-```
 
 ### CI/CD
 
