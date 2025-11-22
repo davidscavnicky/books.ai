@@ -81,6 +81,11 @@ def build_item_item_matrix(ratings: pd.DataFrame) -> Tuple[sparse.csr_matrix, Li
 
 
 def item_item_recommender(target_title: str, ratings: pd.DataFrame, books: pd.DataFrame, top_n: int = 10) -> List[Tuple[str, float]]:
+    """Item-item collaborative filtering using on-demand matrix computation.
+    
+    Note: This rebuilds the matrix on each call. For production use, consider
+    using item_item_recommender_precomputed() with pre-trained similarity matrix.
+    """
     mat, isbn_list, isbn_to_index = build_item_item_matrix(ratings)
     
     # Check if matrix is empty
@@ -121,7 +126,75 @@ def item_item_recommender(target_title: str, ratings: pd.DataFrame, books: pd.Da
     return results
 
 
+def item_item_recommender_precomputed(
+    target_title: str,
+    books: pd.DataFrame,
+    item_matrix,
+    item_sim,
+    isbn_to_itemidx: dict,
+    top_n: int = 10
+) -> List[Tuple[str, float]]:
+    """Item-item collaborative filtering using pre-computed similarity matrix.
+    
+    This is the production-ready version that uses pre-trained artifacts from
+    train_recommender.py, avoiding expensive matrix computation on each request.
+    
+    Args:
+        target_title: Book title to find recommendations for
+        books: DataFrame with book metadata (isbn, title, author)
+        item_matrix: Pre-computed item matrix from training
+        item_sim: Pre-computed pairwise similarity matrix
+        isbn_to_itemidx: Dict mapping ISBN to matrix index
+        top_n: Number of recommendations to return
+    
+    Returns:
+        List of (title, similarity_score) tuples
+    """
+    # Find the target book
+    match = books[books['title'].str.contains(target_title, case=False, na=False)]
+    if match.empty:
+        match = books[books['title'].str.lower() == target_title.lower()]
+    if match.empty:
+        raise ValueError(f"Could not find book matching title: {target_title}")
+    
+    target_isbn = match.iloc[0]['isbn']
+    if target_isbn not in isbn_to_itemidx:
+        raise ValueError(f"Target ISBN {target_isbn} not present in pre-computed similarity matrix")
+    
+    # Get pre-computed similarities for this book
+    target_idx = isbn_to_itemidx[target_isbn]
+    sims = item_sim[target_idx]
+    
+    # Get top similar items (excluding the target itself)
+    top_idx = sims.argsort()[::-1]
+    
+    results = []
+    for idx in top_idx:
+        if idx == target_idx:
+            continue
+        if sims[idx] <= 0:
+            continue
+            
+        rec_isbn = item_matrix.index[idx]
+        matching_books = books[books['isbn'] == rec_isbn]
+        if matching_books.empty:
+            continue
+            
+        title = matching_books.iloc[0]['title']
+        results.append((title, float(sims[idx])))
+        
+        if len(results) >= top_n:
+            break
+    
+    return results
+
+
 def content_based_recommender(target_title: str, books: pd.DataFrame, top_n: int = 10) -> List[Tuple[str, float]]:
+    """Content-based filtering using on-demand TF-IDF computation.
+    
+    Note: This rebuilds the TF-IDF matrix on each call. For production use, consider
+    using content_based_recommender_precomputed() with pre-trained TF-IDF matrix.
+    """
     corpus = (books['title'].fillna('') + ' ' + books['author'].fillna('')).astype(str)
     vec = TfidfVectorizer(stop_words='english', ngram_range=(1, 2)).fit_transform(corpus)
     matches = books[books['title'].str.contains(target_title, case=False, na=False)]
@@ -141,6 +214,53 @@ def content_based_recommender(target_title: str, books: pd.DataFrame, top_n: int
             continue
         title = books.loc[idx, 'title']
         results.append((title, float(sims[idx])))
+    return results
+
+
+def content_based_recommender_precomputed(
+    target_title: str,
+    books: pd.DataFrame,
+    tfidf_matrix,
+    top_n: int = 10
+) -> List[Tuple[str, float]]:
+    """Content-based filtering using pre-computed TF-IDF matrix.
+    
+    This is the production-ready version that uses pre-trained TF-IDF matrix from
+    train_recommender.py, avoiding expensive matrix computation on each request.
+    
+    Args:
+        target_title: Book title to find recommendations for
+        books: DataFrame with book metadata (must match training data order)
+        tfidf_matrix: Pre-computed TF-IDF matrix from training
+        top_n: Number of recommendations to return
+    
+    Returns:
+        List of (title, similarity_score) tuples
+    """
+    # Find the target book
+    matches = books[books['title'].str.contains(target_title, case=False, na=False)]
+    if matches.empty:
+        matches = books[books['title'].str.lower() == target_title.lower()]
+    if matches.empty:
+        raise ValueError(f"Could not find book matching title: {target_title}")
+    
+    target_idx = matches.index[0]
+    
+    # Use pre-computed TF-IDF matrix
+    target_vec = tfidf_matrix.getrow(target_idx)
+    sims = cosine_similarity(target_vec, tfidf_matrix).flatten()
+    sims[target_idx] = -1
+    
+    # Get top similar books
+    top_idx = np.argsort(sims)[::-1][:top_n]
+    
+    results = []
+    for idx in top_idx:
+        if sims[idx] <= 0:
+            continue
+        title = books.loc[idx, 'title']
+        results.append((title, float(sims[idx])))
+    
     return results
 
 

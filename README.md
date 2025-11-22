@@ -79,6 +79,20 @@ Start the Flask API server:
 python scripts/api.py
 ```
 
+#### 🗂️ Pre-computed Similarity Matrix Behavior
+
+The API automatically uses pre-computed item-item similarity matrices when available:
+
+**First run (cold start):**
+- API starts without pre-trained similarity matrix
+- Item-item CF rebuilds matrix on each request (slower)
+- Run `python scripts/train_recommender.py` to generate `models/item_similarity.pkl`
+
+**After training:**
+- API loads `item_similarity.pkl` at startup
+- All item-item CF requests use fast lookups (no rebuild)
+- API starts instantly, realtime requests are very fast
+
 **Endpoints:**
 
 ```bash
