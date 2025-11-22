@@ -1,33 +1,11 @@
 #!/usr/bin/env python3
-"""Training script for book recommendation system.
-
-Implements three recommendation approaches:
-1. Popularity baseline - most-rated books
-2. Content-based - TF-IDF similarity on title/author/publisher/year
-3. Item-item collaborative filtering - cosine similarity on user-item matrix
-
-Note: Content-based is limited to lexical similarity (not semantic) because
-the dataset lacks book descriptions, genres, or summaries. It effectively finds:
-- Books with similar titles
-- Books by the same author
-- Books from same publisher/era
-
-For true semantic recommendations, book descriptions/genres would be needed.
+"""A direct runnable demo implementing the `book_recommender_demo.py` flow.
 
 Usage:
-  python scripts/train_recommender.py
+  PYTHONPATH=src python scripts/book_recommender_demo.py
 
-Data sources (3-tier fallback):
-  1. Local data/Books.csv and data/Ratings.csv
-  2. Auto-download from Kaggle (requires kagglehub)
-  3. Built-in demo dataset (5 books, 7 ratings)
-
-Output:
-  - Prints popularity baseline results
-  - Prints content-based recommendations
-  - Prints item-item CF recommendations
-  - Saves trained TF-IDF vectorizer to models/tfidf_vectorizer.pkl
-  - Saves processed books DataFrame to models/books_df.pkl
+This script expects `data/Books.csv` and `data/Ratings.csv` in the repo root.
+If missing it will raise; it's intended as a straight conversion of your demo.
 """
 from __future__ import annotations
 

@@ -31,21 +31,14 @@ def _format_results(results: List[tuple]) -> List[dict]:
 
 @app.route("/recommend", methods=["GET"])
 def recommend():
+    title = request.args.get("title")
+    if not title:
+        return jsonify({"error": "missing 'title' parameter"}), 400
+
     method = request.args.get("method", "content")
     top_n = int(request.args.get("top_n", 10))
 
     try:
-        if method == "pop":
-            # Popularity doesn't need a title parameter
-            pop_res = recommender.popularity_recommender(ratings_df, top_n=top_n)
-            # popularity returns (title, count)
-            return jsonify({"method": "pop", "results": [{"title": t, "count": int(c)} for t, c in pop_res]})
-        
-        # For content and item methods, title is required
-        title = request.args.get("title")
-        if not title:
-            return jsonify({"error": "missing 'title' parameter for content/item methods"}), 400
-
         if method == "content":
             res = recommender.content_based_recommender(title, books_df, top_n=top_n)
             return jsonify({"method": "content", "query": title, "results": _format_results(res)})
@@ -54,8 +47,13 @@ def recommend():
             res = recommender.item_item_recommender(title, ratings_df, books_df, top_n=top_n)
             return jsonify({"method": "item", "query": title, "results": _format_results(res)})
 
+        elif method == "pop":
+            pop_res = recommender.popularity_recommender(ratings_df, top_n=top_n)
+            # popularity returns (title, count)
+            return jsonify({"method": "pop", "results": [{"title": t, "count": int(c)} for t, c in pop_res]})
+
         else:
-            return jsonify({"error": f"unknown method '{method}'. Valid: content, item, pop"}), 400
+            return jsonify({"error": f"unknown method '{method}'"}), 400
 
     except Exception as exc:
         return jsonify({"error": str(exc)}), 500

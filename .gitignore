@@ -78,8 +78,9 @@ target/
 # mypy cache
 .mypy_cache/
 
-# Generated data
-*.csv
+# Generated data - ignore large dataset files but keep demo data
+data/Books.csv
+data/Ratings.csv
 *.data
 *.dat
 *.hdf5
