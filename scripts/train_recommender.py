@@ -214,17 +214,36 @@ def item_based_recs_by_title(seed_title: str, books: pd.DataFrame, item_matrix, 
     return recs
 
 
-def save_artifacts(tf, tfidf_matrix, books: pd.DataFrame):
-    """Save TF-IDF vectorizer and books dataframe for later use."""
+def save_artifacts(tf, tfidf_matrix, books: pd.DataFrame, item_matrix=None, item_sim=None, isbn_to_itemidx=None):
+    """Save TF-IDF vectorizer, books dataframe, and item-item similarity matrix for later use."""
     ensure_models_dir()
+    
+    # Save content-based artifacts (vectorizer + matrix)
     with open('models/tfidf_vectorizer.pkl', 'wb') as f:
         pickle.dump(tf, f)
+    with open('models/content_tfidf.pkl', 'wb') as f:
+        pickle.dump({
+            'tfidf_matrix': tfidf_matrix,
+            'vectorizer': tf
+        }, f)
+    print(f"Saved TF-IDF matrix: {tfidf_matrix.shape}")
+    
     # Save only the columns that exist
     cols_to_save = ['isbn', 'title', 'author']
     if 'content' in books.columns:
         cols_to_save.append('content')
     with open('models/books_df.pkl', 'wb') as f:
         pickle.dump(books[cols_to_save], f)
+    
+    # Save item-item collaborative filtering artifacts
+    if item_matrix is not None and item_sim is not None and isbn_to_itemidx is not None:
+        with open('models/item_similarity.pkl', 'wb') as f:
+            pickle.dump({
+                'item_matrix': item_matrix,
+                'item_sim': item_sim,
+                'isbn_to_itemidx': isbn_to_itemidx
+            }, f)
+        print(f"Saved item-item similarity matrix: {item_sim.shape}")
 
 
 def main():
@@ -245,6 +264,9 @@ def main():
     for t, s in c_recs:
         print(f' - {t} (sim={s:.3f})')
 
+    item_matrix = None
+    item_sim = None
+    isbn_to_itemidx = None
     try:
         item_matrix, item_sim, isbn_to_itemidx = build_item_cf(ratings)
         ib_recs = item_based_recs_by_title(seed, books, item_matrix, item_sim, isbn_to_itemidx, topn=10)
@@ -256,8 +278,13 @@ def main():
 
     # Save artifacts
     try:
-        save_artifacts(tf, tfidf_matrix, books)
-        print('\nSaved TF-IDF and books dataframe into models/')
+        save_artifacts(tf, tfidf_matrix, books, item_matrix, item_sim, isbn_to_itemidx)
+        print('\nSaved all model artifacts into models/')
+        print('  - content_tfidf.pkl (TF-IDF matrix + vectorizer)')
+        print('  - tfidf_vectorizer.pkl (legacy, for backwards compatibility)')
+        print('  - books_df.pkl (book metadata)')
+        if item_sim is not None:
+            print('  - item_similarity.pkl (item-item CF matrix)')
     except Exception as exc:
         print('Saving artifacts failed:', exc)
 
